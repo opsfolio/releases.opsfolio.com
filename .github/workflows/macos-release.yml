@@ -1,0 +1,43 @@
+on:
+    push:
+      tags:
+        - '*'
+jobs:
+    macos-release:
+      name: release x86_64-apple-darwin
+      runs-on: macos-latest
+      strategy:
+        matrix:
+          toolchain: [stable]
+          triple:
+            - { target: x86_64-apple-darwin, cross: false }
+      steps:
+        - uses: actions/checkout@v2
+          with:
+            repository: opsfolio/resource-surveillance
+            token: ${{ secrets.OPSFOLIO_PAT }}
+            ref: 'main' # or any specific branch/tag you wish to checkout
+        - name: Extract Release Version
+          id: release_version
+          run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        - name: Install toolchain
+          uses: actions-rs/toolchain@v1
+          with:
+            profile: minimal
+            toolchain: ${{ matrix.toolchain }}
+            override: true
+        - name: Build with Cargo
+          run: |
+            cargo build --release --target ${{ matrix.triple.target }}
+            ./target/${{ matrix.triple.target }}/release/surveilr --help
+            zip -r resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip target/${{ matrix.triple.target }}/release/surveilr
+
+        - name: Upload To Releases
+          uses: actions/upload-release-asset@v1
+          env: 
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ github.event.release.upload_url }}
+            asset_path: resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip
+            asset_name: resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip
+            asset_content_type: application/zip 
