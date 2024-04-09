@@ -15,7 +15,7 @@ jobs:
         - uses: actions/checkout@v2
           with:
             repository: opsfolio/resource-surveillance
-            token: ${{ secrets.OPSFOLIO_PAT }}
+            token: ${{ secrets.GH_PAT }}
             ref: 'main' # or any specific branch/tag you wish to checkout
         - name: Extract Release Version
           id: release_version
