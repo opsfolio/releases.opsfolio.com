@@ -42,7 +42,7 @@ jobs:
                     throw new Error(`Release not found for tag ${tag}`);
                 }
                 return release.upload_url;
-                result-encoding: string
+            result-encoding: string
           env:
                 GITHUB_REF: ${{ github.ref }}
 
