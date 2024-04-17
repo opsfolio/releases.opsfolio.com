@@ -48,6 +48,8 @@ jobs:
           result-encoding: string
         env:
               GITHUB_REF: ${{ github.ref }}
+      - name: Suppress C warnings
+        run: echo "CFLAGS=-Wno-maybe-uninitialized" >> $GITHUB_ENV
 
       - name: Build with Cargo
         run: |
