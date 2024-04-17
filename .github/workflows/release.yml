@@ -48,10 +48,6 @@ jobs:
           result-encoding: string
         env:
               GITHUB_REF: ${{ github.ref }}
-  
-      - name: Print Upload URL
-        run: |
-          echo ${{ steps.get_upload_url.outputs.result }}
 
       - name: Build with Cargo
         run: |
