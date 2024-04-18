@@ -53,7 +53,7 @@ jobs:
 
       - name: Build with Cargo
         run: |
-          cargo build --release --target ${{ matrix.triple.target }}
+          cargo build --target ${{ matrix.triple.target }}
           .\target\${{ matrix.triple.target }}\release\surveilr.exe --help
           Compress-Archive -Path .\target\${{ matrix.triple.target }}\release\surveilr.exe -DestinationPath resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
   
