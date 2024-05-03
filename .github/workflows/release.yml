@@ -48,14 +48,12 @@ jobs:
           result-encoding: string
         env:
               GITHUB_REF: ${{ github.ref }}
-      - name: Suppress C warnings
-        run: echo "CFLAGS=-Wno-maybe-uninitialized" >> $GITHUB_ENV
 
       - name: Build with Cargo
         run: |
-          cargo build --target ${{ matrix.triple.target }}
-          .\target\${{ matrix.triple.target }}\debug\surveilr.exe --help
-          Compress-Archive -Path .\target\${{ matrix.triple.target }}\debug\surveilr.exe -DestinationPath resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
+          cargo build --release --target ${{ matrix.triple.target }}
+          .\target\${{ matrix.triple.target }}\release\surveilr.exe --help
+          Compress-Archive -Path .\target\${{ matrix.triple.target }}\release\surveilr.exe -DestinationPath resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
   
       - name: Upload To Releases
         uses: actions/upload-release-asset@v1
