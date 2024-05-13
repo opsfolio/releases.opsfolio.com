@@ -1,11 +1,11 @@
 ## Installation
 
-Before you can get anything, you have to get [Eget](https://github.com/zyedidia/eget).
+Before you can get anything, you have to get [Eget](https://github.com/zyedidia/eget):
 
 ```bash
 $ curl https://zyedidia.github.io/eget.sh | sh
 ```
-Now install `surveilr` using `eget`
+Now install `surveilr` using `eget`:
 
 ```bash
 $ eget opsfolio/releases.opsfolio.com --asset tar.gz
