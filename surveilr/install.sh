@@ -4,6 +4,7 @@
 
 # Detect the platform
 PLATFORM=$(uname -s | tr '[:upper:]' '[:lower:]')
+echo "Detected platform: $PLATFORM"
 
 # select the BUILD
 case "$PLATFORM" in
@@ -14,6 +15,7 @@ esac
 
 # Set the SURVEILR_HOME environment variable to the current directory if not already set
 : ${SURVEILR_HOME:=$(pwd)}
+echo "surveilr be downloaded at: $SURVEILR_HOME"
 
 # Set the repository owner and repository name
 REPO_OWNER="opsfolio"
@@ -24,6 +26,10 @@ API_URL="https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest"
 
 # Fetch the latest release tag from GitHub API and construct the download URL
 DOWNLOAD_URL=$(curl -s $API_URL | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | xargs -I {} echo "https://github.com/$REPO_OWNER/$REPO_NAME/releases/download/{}/resource-surveillance_{}_x86_64-${BUILD}")
+echo "Constructed download URL: $DOWNLOAD_URL"
+
+# Notify about the start of the download and extraction process
+echo "Starting download and extraction..."
 
 # Download and extract the binary to the SURVEILR_HOME directory
 if [ "$PLATFORM" = "darwin" ]; then
