@@ -34,9 +34,8 @@ echo "Starting download and extraction..."
 # Download and extract the binary to the SURVEILR_HOME directory
 if [ "$PLATFORM" = "darwin" ]; then
 	curl -sL $DOWNLOAD_URL -o temp.zip && unzip -j -q temp.zip -d $SURVEILR_HOME && rm temp.zip
-
 else
-  if [[ "$BUILD" =~ tar\.gz$ ]]; then
+  if [ "$BUILD" = "unknown-linux-musl.tar.gz" ]; then
     curl -sL $DOWNLOAD_URL | tar -xz -C $SURVEILR_HOME
   else
     echo "Unsupported archive format: $BUILD"
