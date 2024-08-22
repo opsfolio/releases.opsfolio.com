@@ -80,3 +80,12 @@ $ surveilr upgrade --yes
 ## Upgrades to version 0.1.2 if present and  skips the confirmation
 $ surveilr upgrade -v 0.13.0 --yes
 ```
+
+## Downgrading `surveilr`
+
+The following commands shows how to downgrade `surveilr` to any version:
+
+```bash
+$ surveilr upgrade -v 0.12.0 ## downgrades to version 0.12.0
+```
+This takes the same form as the `upgrade` command with the only difference being that a lower version is passed.
