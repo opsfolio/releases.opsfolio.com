@@ -10,27 +10,20 @@ Get the latest `surveilr` by following these steps to complete the installation:
 
    - Select and download the version that matches your operating system (Windows, macOS, or Linux).
 
-3. Extract the executable file from the downloaded archive:
+3. Using Scripts
 
    - **Windows:**
 
-     - Extract the downloaded zip file
-     - Copy the executable ( ends with `.exe` ) file from the extracted zip folder and move to your desired path or directory
-     - Open your terminal and change directory (cd) to where the extracted file was moved
+      ```powershell
+      $ irm https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/refs/heads/main/surveilr/install.ps1 | iex
+      ```
 
    - **macOS and Linux:**
-        Install in desired path by running any of the following commands:
+      1. **[Deno](https://deno.com/)**: A modern runtime for JavaScript and TypeScript that is used to execute the install scripts.
+      2. ```bash
+         $ deno run -A https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/refs/heads/main/surveilr/installctl.ts
+      ```
 
-        ```bash
-        # install in current path
-        $ curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | sh
-
-        # Install globally
-        $ curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | SURVEILR_HOME="$HOME/bin" sh
-
-        # install in preferred path
-        $ curl -sL https://raw.githubusercontent.com/opsfolio/releases.opsfolio.com/main/surveilr/install.sh | SURVEILR_HOME="/path/to/directory" sh
-        ```
 4. Run verification steps [here](#verify-installation).
 
 ### Alternative Installation for Linux Using Eget
