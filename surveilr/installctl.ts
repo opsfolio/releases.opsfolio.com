@@ -19,7 +19,7 @@ function getBuild(platform: string) {
     case "msys":
       return "pc-windows-gnu.zip";
     default:
-      $.logError("Unsupported platform");
+      $.logError("Unsupported platform", '');
       Deno.exit(1);
   }
 }
