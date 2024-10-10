@@ -51,7 +51,7 @@ jobs:
 
       - name: Build with Cargo
         run: |
-          cargo build --release --target ${{ matrix.triple.target }}
+          LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS"  cargo build --release --target ${{ matrix.triple.target }}
           .\target\${{ matrix.triple.target }}\release\surveilr.exe --help
           Compress-Archive -Path .\target\${{ matrix.triple.target }}\release\surveilr.exe -DestinationPath resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
       
@@ -125,7 +125,7 @@ jobs:
             echo ${{ steps.get_upload_url.outputs.result }}
         - name: Build with Cargo
           run: |
-            cargo build --release --target ${{ matrix.triple.target }}
+            LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS"  cargo build --release --target ${{ matrix.triple.target }}
             ./target/${{ matrix.triple.target }}/release/surveilr --help
             zip -r resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip target/${{ matrix.triple.target }}/release/surveilr
 
