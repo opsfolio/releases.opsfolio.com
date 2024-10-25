@@ -15,7 +15,7 @@ case "$PLATFORM" in
 esac
 
 # Set the SURVEILR_HOME environment variable to the current directory if not already set
-: ${SURVEILR_HOME:=$(pwd)}
+: "${SURVEILR_HOME:=$(pwd)}"
 echo "Surveilr will be downloaded at: $SURVEILR_HOME"
 
 # Set the repository owner and repository name
@@ -34,11 +34,11 @@ echo "Starting download and extraction..."
 
 # Download and extract the binary to the SURVEILR_HOME directory
 if [ "$PLATFORM" = "darwin" ]; then
-	curl -sL $DOWNLOAD_URL -o temp.zip && unzip -j -q temp.zip -d $SURVEILR_HOME && rm temp.zip
-elif [[ "$PLATFORM" == *"cygwin"* || "$PLATFORM" == *"mingw"* || "$PLATFORM" == *"msys"* ]]; then
-	curl -sL $DOWNLOAD_URL -o temp.zip && unzip -j -q temp.zip -d $SURVEILR_HOME && rm temp.zip
+	curl -sL "$DOWNLOAD_URL" -o temp.zip && unzip -j -q temp.zip -d "$SURVEILR_HOME" && rm temp.zip
+elif echo "$PLATFORM" | grep -Eq "cygwin|mingw|msys"; then
+	curl -sL "$DOWNLOAD_URL" -o temp.zip && unzip -j -q temp.zip -d "$SURVEILR_HOME" && rm temp.zip
 elif [ "$PLATFORM" = "linux" ]; then
-	curl -sL $DOWNLOAD_URL | tar -xz -C $SURVEILR_HOME
+	curl -sL "$DOWNLOAD_URL" | tar -xz -C "$SURVEILR_HOME"
 else
 	echo "Unsupported archive format: $BUILD"
 	exit 1
