@@ -36,7 +36,7 @@ REPO_NAME="releases.opsfolio.com"
 API_URL="https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest"
 
 # Fetch the latest release tag from GitHub API and construct the download URL
-DOWNLOAD_URL=$(curl -s $API_URL | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | xargs -I {} echo "https://github.com/$REPO_OWNER/$REPO_NAME/releases/download/{}/resource-surveillance-ts_{}_x86_64-${BUILD}") || { echo "Failed to construct download URL" | tee -a error.log; exit 1; }
+DOWNLOAD_URL=$(curl -s $API_URL | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | xargs -I {} echo "https://github.com/$REPO_OWNER/$REPO_NAME/releases/download/{}/resource-surveillance_{}_x86_64-${BUILD}") || { echo "Failed to construct download URL" | tee -a error.log; exit 1; }
 echo "Constructed download URL: $DOWNLOAD_URL"
 
 # Notify about the start of the download and extraction process
