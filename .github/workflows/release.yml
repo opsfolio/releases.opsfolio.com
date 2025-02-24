@@ -159,9 +159,7 @@ jobs:
           autoreconf -fi
           ./configure --enable-static --disable-shared --prefix=/usr/local
           make -j$(nproc)
-          sudo mkdir -p /usr/local/lib
-          sudo chown -R $USER:$GROUP /usr/local/lib
-          make install
+          sudo make install
           cd..
           rm -rf oniguruma
 
@@ -172,7 +170,7 @@ jobs:
           autoreconf -fi
           ./configure --disable-maintainer-mode --enable-static --disable-shared --with-oniguruma=/usr/local
           make -j$(nproc)
-          make install
+          sudo make install
           cd..
           rm -rf jq
 
