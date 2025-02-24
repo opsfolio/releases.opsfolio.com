@@ -1,7 +1,8 @@
 on:
-    push:
-      tags:
-        - '*'
+  push:
+    tags:
+      - '*'
+
 jobs:
   windows-msvc-release:
     name: release x86_64-pc-windows-msvc
@@ -29,32 +30,49 @@ jobs:
           override: true
           target: ${{ matrix.triple.target }}
           default: true
-  
+
       - name: Get Release Upload URL
         id: get_upload_url
         uses: actions/github-script@v5
         with:
           script: |
-              const tag = process.env.GITHUB_REF.split('/').pop();
-              const releases = await github.rest.repos.listReleases({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-              });
-              const release = releases.data.find(release => release.tag_name === tag);
-              if (!release) {
-                  throw new Error(`Release not found for tag ${tag}`);
-              }
-              return release.upload_url;
+            const tag = process.env.GITHUB_REF.split('/').pop();
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const release = releases.data.find(release => release.tag_name === tag);
+            if (!release) {
+              throw new Error(`Release not found for tag ${tag}`);
+            }
+            return release.upload_url;
           result-encoding: string
         env:
-              GITHUB_REF: ${{ github.ref }}
+          GITHUB_REF: ${{ github.ref }}
+
+      - name: Install vcpkg
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git
+        .\vcpkg\bootstrap-vcpkg.bat
+
+      - name: Install jq and oniguruma (static)
+        run: |
+        .\vcpkg\vcpkg install jq --triplet x64-windows-static
+        .\vcpkg\vcpkg install oniguruma --triplet x64-windows-static
+
+      - name: Set environment variables
+        run: |
+          echo "PKG_CONFIG_PATH=$GITHUB_WORKSPACE/vcpkg/installed/x64-windows-static/lib/pkgconfig;$PKG_CONFIG_PATH" >> $GITHUB_ENV
+          echo "LIB=$GITHUB_WORKSPACE/vcpkg/installed/x64-windows-static/lib;$LIB" >> $GITHUB_ENV
+          echo "INCLUDE=$GITHUB_WORKSPACE/vcpkg/installed/x64-windows-static/include;$INCLUDE" >> $GITHUB_ENV
+          echo "LIBSQLITE3_FLAGS=-DSQLITE_ENABLE_MATH_FUNCTIONS" >> $GITHUB_ENV
 
       - name: Build with Cargo
         run: |
           $env:LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS"
           cargo build --release --target ${{ matrix.triple.target }}
-          .\target\${{ matrix.triple.target }}\release\surveilr.exe --help
-          Compress-Archive -Path .\target\${{ matrix.triple.target }}\release\surveilr.exe -DestinationPath resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
+        .\target\${{ matrix.triple.target }}\release\surveilr.exe --help
+          Compress-Archive -Path.\target\${{ matrix.triple.target }}\release\surveilr.exe -DestinationPath resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
       
       - name: Upload surveilr.exe to releases
         uses: actions/upload-release-asset@v1
@@ -62,7 +80,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get_upload_url.outputs.result }}
-          asset_path: .\target\${{ matrix.triple.target }}\release\surveilr.exe
+          asset_path:.\target\${{ matrix.triple.target }}\release\surveilr.exe
           asset_name: surveilr.exe
           asset_content_type: application/octet-stream
             
@@ -76,139 +94,112 @@ jobs:
           asset_name: resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
           asset_content_type: application/zip
 
-  # windows-release:
-  #   name: release x86_64-pc-windows-gnu
-  #   runs-on: windows-latest
-  #   strategy:
-  #     matrix:
-  #       toolchain: [stable]
-  #       triple:
-  #         - { target: x86_64-pc-windows-gnu, cross: false }
-  #   steps:
-  #     - uses: ilammy/setup-nasm@v1
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         repository: opsfolio/resource-surveillance
-  #         token: ${{ secrets.GH_PAT }}
-  #         ref: 'main' 
-  #     - name: Extract Release Version
-  #       id: release_version
-  #       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-  #     - name: Install toolchain
-  #       uses: actions-rs/toolchain@v1
-  #       with:
-  #         profile: minimal
-  #         toolchain: ${{ matrix.toolchain }}
-  #         override: true
-  #         target: ${{ matrix.triple.target }}
-  #         default: true
-  
-  #     - name: Get Release Upload URL
-  #       id: get_upload_url
-  #       uses: actions/github-script@v5
-  #       with:
-  #         script: |
-  #             const tag = process.env.GITHUB_REF.split('/').pop();
-  #             const releases = await github.rest.repos.listReleases({
-  #                 owner: context.repo.owner,
-  #                 repo: context.repo.repo,
-  #             });
-  #             const release = releases.data.find(release => release.tag_name === tag);
-  #             if (!release) {
-  #                 throw new Error(`Release not found for tag ${tag}`);
-  #             }
-  #             return release.upload_url;
-  #         result-encoding: string
-  #       env:
-  #             GITHUB_REF: ${{ github.ref }}
-
-  #     - name: Build with Cargo
-  #       run: |
-  #         $env:LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS"
-  #         cargo build --release --target ${{ matrix.triple.target }}
-  #         .\target\${{ matrix.triple.target }}\release\surveilr.exe --help
-  #         Compress-Archive -Path .\target\${{ matrix.triple.target }}\release\surveilr.exe -DestinationPath resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
-      
-  #     - name: Upload surveilr.exe to releases
-  #       uses: actions/upload-release-asset@v1
-  #       env: 
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         upload_url: ${{ steps.get_upload_url.outputs.result }}
-  #         asset_path: .\target\${{ matrix.triple.target }}\release\surveilr.exe
-  #         asset_name: surveilr.exe
-  #         asset_content_type: application/octet-stream
-            
-  #     - name: Upload To Releases
-  #       uses: actions/upload-release-asset@v1
-  #       env: 
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         upload_url: ${{ steps.get_upload_url.outputs.result }}
-  #         asset_path: resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
-  #         asset_name: resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
-  #         asset_content_type: application/zip
-  
   macos-release:
-      name: release x86_64-apple-darwin
-      runs-on: macos-latest
-      strategy:
-        matrix:
-          toolchain: [stable]
-          triple:
-            - { target: x86_64-apple-darwin, cross: false }
-      steps:
-        - uses: actions/checkout@v2
-          with:
-            repository: opsfolio/resource-surveillance
-            token: ${{ secrets.GH_PAT }}
-            ref: 'main' # or any specific branch/tag you wish to checkout
-        - name: Add target
-          run: rustup target add x86_64-apple-darwin
-        - name: Extract Release Version
-          id: release_version
-          run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-        - name: Install toolchain
-          uses: actions-rs/toolchain@v1
-          with:
-            profile: minimal
-            toolchain: ${{ matrix.toolchain }}
-            override: true
+    name: release x86_64-apple-darwin
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        toolchain: [stable]
+        triple:
+          - { target: x86_64-apple-darwin, cross: false }
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: opsfolio/resource-surveillance
+          token: ${{ secrets.GH_PAT }}
+          ref: 'main' 
+      - name: Add target
+        run: rustup target add x86_64-apple-darwin
+      - name: Extract Release Version
+        id: release_version
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.toolchain }}
+          override: true
 
-        - name: Get Release Upload URL
-          id: get_upload_url
-          uses: actions/github-script@v5
-          with:
-            script: |
-                const tag = process.env.GITHUB_REF.split('/').pop();
-                const releases = await github.rest.repos.listReleases({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                });
-                const release = releases.data.find(release => release.tag_name === tag);
-                if (!release) {
-                    throw new Error(`Release not found for tag ${tag}`);
-                }
-                return release.upload_url;
-            result-encoding: string
-          env:
-                GITHUB_REF: ${{ github.ref }}
+      - name: Get Release Upload URL
+        id: get_upload_url
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const tag = process.env.GITHUB_REF.split('/').pop();
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const release = releases.data.find(release => release.tag_name === tag);
+            if (!release) {
+              throw new Error(`Release not found for tag ${tag}`);
+            }
+            return release.upload_url;
+          result-encoding: string
+        env:
+          GITHUB_REF: ${{ github.ref }}
 
-        - name: Print Upload URL
-          run: |
-            echo ${{ steps.get_upload_url.outputs.result }}
-        - name: Build with Cargo
-          run: |
-            LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS"  cargo build --release --target ${{ matrix.triple.target }}
-            ./target/${{ matrix.triple.target }}/release/surveilr --help
-            zip -r resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip target/${{ matrix.triple.target }}/release/surveilr
+      - name: Print Upload URL
+        run: |
+          echo ${{ steps.get_upload_url.outputs.result }}
 
-        - name: Upload To Releases
-          uses: actions/upload-release-asset@v1
-          env: 
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            upload_url: ${{ steps.get_upload_url.outputs.result }}
-            asset_path: resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip
-            asset_name: resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip
-            asset_content_type: application/zip 
+      - name: Install dependencies (if needed)
+        run: brew install autoconf automake libtool
+      
+      - name: Build Oniguruma (static)
+        run: |
+          git clone https://github.com/kkos/oniguruma.git
+          cd oniguruma
+          autoreconf -fi
+        ./configure --enable-static --disable-shared --prefix=/usr/local
+          make -j$(nproc)
+          make install
+          cd..
+          rm -rf oniguruma
+
+      - name: Build jq (static)
+        run: |
+          git clone --recurse-submodules https://github.com/stedolan/jq.git
+          cd jq
+          autoreconf -fi
+        ./configure --disable-maintainer-mode --enable-static --disable-shared --with-oniguruma=/usr/local
+          make -j$(nproc)
+          make install
+          cd..
+          rm -rf jq
+
+      - name: Create jq.pc
+        run: |
+          echo "prefix=/usr/local" > /usr/local/lib/pkgconfig/jq.pc
+          echo "exec_prefix=\${prefix}" >> /usr/local/lib/pkgconfig/jq.pc
+          echo "libdir=\${exec_prefix}/lib" >> /usr/local/lib/pkgconfig/jq.pc
+          echo "includedir=\${prefix}/include" >> /usr/local/lib/pkgconfig/jq.pc
+          echo "" >> /usr/local/lib/pkgconfig/jq.pc
+          echo "Name: jq" >> /usr/local/lib/pkgconfig/jq.pc
+          echo "Description: Lightweight and flexible JSON processor" >> /usr/local/lib/pkgconfig/jq.pc
+          JQ_VERSION=$(jq --version 2>&1 | awk '{print $2}') && \
+          echo "Version: ${JQ_VERSION}" >> /usr/local/lib/pkgconfig/jq.pc
+          echo "Libs: -L\${libdir} -ljq -lonig" >> /usr/local/lib/pkgconfig/jq.pc
+          echo "Cflags: -I\${includedir}" >> /usr/local/lib/pkgconfig/jq.pc
+
+      - name: Set environment variables
+        run: |
+          export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
+          export LDFLAGS="-L/usr/local/lib"
+          export LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS"
+
+      - name: Build with Cargo
+        run: |
+          LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS" cargo build --release --target ${{ matrix.triple.target }}
+        ./target/${{ matrix.triple.target }}/release/surveilr --help
+          zip -r resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip target/${{ matrix.triple.target }}/release/surveilr
+
+      - name: Upload To Releases
+        uses: actions/upload-release-asset@v1
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.get_upload_url.outputs.result }}
+          asset_path: resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip
+          asset_name: resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip
+          asset_content_type: application/zip
