@@ -160,7 +160,7 @@ jobs:
           ./configure --enable-static --disable-shared --prefix=/usr/local
           make -j$(nproc)
           sudo make install
-          cd..
+          cd ..
           rm -rf oniguruma
 
       - name: Build jq (static)
@@ -171,7 +171,7 @@ jobs:
           ./configure --disable-maintainer-mode --enable-static --disable-shared --with-oniguruma=/usr/local
           make -j$(nproc)
           sudo make install
-          cd..
+          cd ..
           rm -rf jq
 
       - name: Create jq.pc
