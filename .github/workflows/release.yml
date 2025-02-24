@@ -56,12 +56,12 @@ jobs:
       - name: Install vcpkg
         run: |
           git clone https://github.com/microsoft/vcpkg.git
-        .\vcpkg\bootstrap-vcpkg.bat
+          .\vcpkg\bootstrap-vcpkg.bat
 
       - name: Install jq and oniguruma (static)
         run: |
-        .\vcpkg\vcpkg install jq --triplet x64-windows-static
-        .\vcpkg\vcpkg install oniguruma --triplet x64-windows-static
+            .\vcpkg\vcpkg install jq --triplet x64-windows-static
+            .\vcpkg\vcpkg install oniguruma --triplet x64-windows-static
 
       - name: Set environment variables
         run: |
@@ -74,7 +74,7 @@ jobs:
         run: |
           $env:LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS"
           cargo build --release --target ${{ matrix.triple.target }}
-        .\target\${{ matrix.triple.target }}\release\surveilr.exe --help
+          .\target\${{ matrix.triple.target }}\release\surveilr.exe --help
           Compress-Archive -Path.\target\${{ matrix.triple.target }}\release\surveilr.exe -DestinationPath resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
       
       - name: Upload surveilr.exe to releases
@@ -84,7 +84,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get_upload_url.outputs.result }}
-          asset_path:.\target\${{ matrix.triple.target }}\release\surveilr.exe
+          asset_path: .\target\${{ matrix.triple.target }}\release\surveilr.exe
           asset_name: surveilr.exe
           asset_content_type: application/octet-stream
             
@@ -157,7 +157,7 @@ jobs:
           git clone https://github.com/kkos/oniguruma.git
           cd oniguruma
           autoreconf -fi
-        ./configure --enable-static --disable-shared --prefix=/usr/local
+          ./configure --enable-static --disable-shared --prefix=/usr/local
           make -j$(nproc)
           make install
           cd..
@@ -168,7 +168,7 @@ jobs:
           git clone --recurse-submodules https://github.com/stedolan/jq.git
           cd jq
           autoreconf -fi
-        ./configure --disable-maintainer-mode --enable-static --disable-shared --with-oniguruma=/usr/local
+          ./configure --disable-maintainer-mode --enable-static --disable-shared --with-oniguruma=/usr/local
           make -j$(nproc)
           make install
           cd..
@@ -197,7 +197,7 @@ jobs:
       - name: Build with Cargo
         run: |
           LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS" cargo build --release --target ${{ matrix.triple.target }}
-        ./target/${{ matrix.triple.target }}/release/surveilr --help
+          ./target/${{ matrix.triple.target }}/release/surveilr --help
           zip -r resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip target/${{ matrix.triple.target }}/release/surveilr
 
       - name: Upload To Releases
