@@ -176,17 +176,18 @@ jobs:
 
       - name: Create jq.pc
         run: |
-          echo "prefix=/usr/local" > /usr/local/lib/pkgconfig/jq.pc
-          echo "exec_prefix=\${prefix}" >> /usr/local/lib/pkgconfig/jq.pc
-          echo "libdir=\${exec_prefix}/lib" >> /usr/local/lib/pkgconfig/jq.pc
-          echo "includedir=\${prefix}/include" >> /usr/local/lib/pkgconfig/jq.pc
-          echo "" >> /usr/local/lib/pkgconfig/jq.pc
-          echo "Name: jq" >> /usr/local/lib/pkgconfig/jq.pc
-          echo "Description: Lightweight and flexible JSON processor" >> /usr/local/lib/pkgconfig/jq.pc
-          JQ_VERSION=$(jq --version 2>&1 | awk '{print $2}') && \
-          echo "Version: ${JQ_VERSION}" >> /usr/local/lib/pkgconfig/jq.pc
-          echo "Libs: -L\${libdir} -ljq -lonig" >> /usr/local/lib/pkgconfig/jq.pc
-          echo "Cflags: -I\${includedir}" >> /usr/local/lib/pkgconfig/jq.pc
+          sudo tee /usr/local/lib/pkgconfig/jq.pc <<EOF
+          prefix=/usr/local
+          exec_prefix=\${prefix}
+          libdir=\${exec_prefix}/lib
+          includedir=\${prefix}/include
+      
+          Name: jq
+          Description: Lightweight and flexible JSON processor
+          Version: $(jq --version 2>&1 | awk '{print $2}')
+          Libs: -L\${libdir} -ljq -lonig
+          Cflags: -I\${includedir}
+          EOF
 
       - name: Set environment variables
         run: |
