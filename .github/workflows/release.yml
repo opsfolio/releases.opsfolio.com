@@ -2,6 +2,8 @@ on:
   push:
     tags:
       - '*'
+    branches:
+      - main
 
 jobs:
   windows-msvc-release:
@@ -32,6 +34,7 @@ jobs:
           default: true
 
       - name: Get Release Upload URL
+        if: startsWith(github.ref, 'refs/tags/')
         id: get_upload_url
         uses: actions/github-script@v5
         with:
@@ -75,6 +78,7 @@ jobs:
           Compress-Archive -Path.\target\${{ matrix.triple.target }}\release\surveilr.exe -DestinationPath resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip
       
       - name: Upload surveilr.exe to releases
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,6 +89,7 @@ jobs:
           asset_content_type: application/octet-stream
             
       - name: Upload To Releases
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -121,6 +126,7 @@ jobs:
           override: true
 
       - name: Get Release Upload URL
+        if: startsWith(github.ref, 'refs/tags/')
         id: get_upload_url
         uses: actions/github-script@v5
         with:
@@ -195,6 +201,7 @@ jobs:
           zip -r resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip target/${{ matrix.triple.target }}/release/surveilr
 
       - name: Upload To Releases
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
         env: 
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
