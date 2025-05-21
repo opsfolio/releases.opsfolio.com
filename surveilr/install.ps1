@@ -2,7 +2,7 @@ $ErrorActionPreference = 'Stop'
 
 $RepoOwner = 'opsfolio'
 $RepoName = 'releases.opsfolio.com'
-$Target = 'x86_64-pc-windows-gnu'
+$Target = 'x86_64-pc-windows-msvc'
 $Version = $null
 
 if ($Args.Length -eq 1) {
