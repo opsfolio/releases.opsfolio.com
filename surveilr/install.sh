@@ -20,7 +20,7 @@ echo "Detected platform: $PLATFORM"
 case "$PLATFORM" in
     "darwin") BUILD="apple-darwin.zip" ;;
     "linux") BUILD="unknown-linux-gnu.tar.gz" ;;
-    *"cygwin"*|*"mingw"*|*"msys"*) BUILD="pc-windows-gnu.zip" ;;
+    *"cygwin"*|*"mingw"*|*"msys"*) BUILD="pc-windows-msvc.zip" ;;
     *) echo "Unsupported platform" | tee -a error.log; exit 1 ;;
 esac
 

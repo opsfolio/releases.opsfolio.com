@@ -132,9 +132,11 @@ jobs:
             echo ${{ steps.get_upload_url.outputs.result }}
         - name: Build with Cargo
           run: |
-            LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS"  cargo build --release --target ${{ matrix.triple.target }}
+            LIBSQLITE3_FLAGS="-DSQLITE_ENABLE_MATH_FUNCTIONS" cargo build --release --target ${{ matrix.triple.target }}
             ./target/${{ matrix.triple.target }}/release/surveilr --help
-            zip -r resource-surveillance_${{github.ref_name}}_${{ matrix.triple.target }}.zip target/${{ matrix.triple.target }}/release/surveilr
+            cd target/${{ matrix.triple.target }}/release
+            zip ../../../resource-surveillance_${{ github.ref_name }}_${{ matrix.triple.target }}.zip surveilr
+
 
         - name: Upload To Releases
           if: startsWith(github.ref, 'refs/tags/')

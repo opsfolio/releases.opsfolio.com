@@ -17,7 +17,7 @@ function getBuild(platform: string) {
     case "cygwin":
     case "mingw":
     case "msys":
-      return "pc-windows-gnu.zip";
+      return "pc-windows-msvc.zip";
     default:
       $.logError("Unsupported platform", '');
       Deno.exit(1);
