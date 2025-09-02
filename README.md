@@ -89,3 +89,5 @@ The following commands shows how to downgrade `surveilr` to any version:
 $ surveilr upgrade -v 0.12.0 ## downgrades to version 0.12.0
 ```
 This takes the same form as the `upgrade` command with the only difference being that a lower version is passed.
+
+<!-- Security scan triggered at 2025-09-02 15:49:15 -->
